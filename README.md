@@ -20,11 +20,6 @@ This app is made using PostgreSQL + HapiJS as it backend stack and ReactJS as it
 clone this repository and do npm install. Detailed instruction available on backend and frontend folder
 
 ## Caveat
-Since the boilerplate use many "old" packages, I decided to stick with that since I don't have luxury of time to upgrade them to current version. I am afraid there will be many regression because of breaking change (That, aside from my lack of capability in given framework or package :()
-
-There will be some weird event in frontend such as :
-- Upon entering route /shift, API will call twice (first call would have same startDate and endDate value which is today date, and second would be correct call with one week value).
-- After saving or updating or clicking back button from update/add form, the week picker value should stay the same as previous value. Instead, it keep reverting back to today date which will cause above behaviour again
 
 ## Development
 
