@@ -1,7 +1,6 @@
 # Full Stack Example Showcase
 ## simple time-shift app
 
-![example workflow](https://github.com/wienzzz/angular-test>/actions/workflows/<WORKFLOW_FILE>/badge.svg)
 
 
 This app is made using PostgreSQL + HapiJS as it backend stack and ReactJS as it frontend stack. Within this repo, you will see 2 folder, backend and frontend. This showcase will show us about :
