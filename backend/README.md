@@ -1,4 +1,4 @@
-# Staffany Take Home Test - Backend
+# SA-Showcase Backend
 
 ## Stacks
 - Framework: Hapi JS
@@ -21,6 +21,7 @@ DB_PASSWORD="<your postgres password>"
 DB_NAME="<your db name>"
 ```
 5. Create a PostgreSQL database with name that you specifies in .env (which is, **DB_NAME**)
+6. Restore staffany_schema.psql into your postgre database OR read Wiki section and create function as necessary
 
 ## How to run
 1. `npm run dev`
@@ -42,7 +43,3 @@ DB_NAME="<your db name>"
 * Database Repositories are located inside `./src/database/default/repository/`. Repositories contains CRUD Operations.
 * Business Logics are located inside `./src/usecases/`
 * API Endpoint routing are located inside `./src/routes/`
-
-## Solution
-### Note 1
-* Solved by creating trigger on database side
