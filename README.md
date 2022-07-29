@@ -13,7 +13,7 @@ This app is made using PostgreSQL + HapiJS as it backend stack and ReactJS as it
 
 ## Features
 
-- Enter timeshift which can't be overlapped/clashed within same day
+- Arrange your daily timeshift
 - Publish entered timeshift within week
 
 ## How To?
