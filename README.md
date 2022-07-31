@@ -1,8 +1,6 @@
 # Full Stack Example Showcase
 ## simple time-shift app
 
-
-
 This app is made using PostgreSQL + HapiJS as it backend stack and ReactJS as it frontend stack. Within this repo, you will see 2 folder, backend and frontend. This showcase will show us about :
 
 - Creating and utilizing Postgre trigger function to validate data
@@ -17,9 +15,15 @@ This app is made using PostgreSQL + HapiJS as it backend stack and ReactJS as it
 - Publish entered timeshift within week
 
 ## How To?
-clone this repository and do npm install. Detailed instruction available on backend and frontend folder
+clone this repository and do npm install on each folder. PostgreSQL schema available on backend folder. Detailed instruction available on backend and frontend folder
 
-## Caveat
+## Update 
+### 2022-07-31
+* Fix after clicking Update/Add Shift or Back button from ShiftForm, weekpicker controller should show previous shown date
+* Add feature copy individual shift
+* Add feature to copy entire week shift to next week shift
+* Add feature to clear entire week shift
+* Some bug fixes about display and performance
 
 ## Development
 
