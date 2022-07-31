@@ -1,6 +1,6 @@
 import { Server } from '@hapi/hapi';
 import * as shiftController from './shiftController';
-import { createShiftDto, filterSchema, idDto, updateShiftDto } from '../../../shared/dtos';
+import { createShiftDto, filterSchema, idDto, updateShiftDto, publishShiftDto } from '../../../shared/dtos';
 
 export default function (server: Server, basePath: string) {
   server.route({
@@ -78,6 +78,20 @@ export default function (server: Server, basePath: string) {
       tags: ['api', 'shift'],
       validate: {
         params: idDto,
+      },
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: basePath + "/week",
+    handler: shiftController.deleteByDate,
+    options: {
+      description: 'Delete all shift on one week',
+      notes: 'Delete shift on one week',
+      tags: ['api', 'shift'],
+      validate: {
+        payload: publishShiftDto,
       },
     }
   });

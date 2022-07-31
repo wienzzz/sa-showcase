@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { Button, CardActions } from "@material-ui/core";
-import {  Link as RouterLink, useHistory, useLocation, useParams } from "react-router-dom";
+import { Link as RouterLink, useHistory, useLocation, useParams } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import DateFnsUtils from "@date-io/date-fns";
 import { useForm } from "react-hook-form";
@@ -56,6 +56,7 @@ interface PathParams {
 interface dateState {
   dateStart: Date;
   dateEnd: Date;
+  params?: any
 }
 
 interface FormData {
@@ -80,10 +81,9 @@ const defaultValues = {
 };
 
 const ShiftForm = () => {
-  
+
   const history = useHistory();
   const { state } = useLocation<dateState>();
-
   const { id } = useParams<PathParams>();
 
   const classes = useStyles();
@@ -124,7 +124,22 @@ const ShiftForm = () => {
     if (id) {
       getDetail();
     } else {
-      setValue("date", state?.dateStart);
+      let startTime;
+      let endTime;
+      if (state.params) {
+        startTime =
+          format(new Date(), "yyyy-MM-dd") + " " + state?.params?.startTime;
+        endTime =
+          format(new Date(), "yyyy-MM-dd") + " " + state?.params?.endTime;
+      } else {
+        startTime = defaultValues.startTime;
+        endTime = defaultValues.endTime;
+      }
+
+      setValue("date", state?.params?.date ?? state?.dateStart);
+      setValue("name", state?.params?.name ?? "");
+      setValue("startTime", startTime);
+      setValue("endTime", endTime);
     }
   }, [id, register, state]);
 
@@ -178,7 +193,7 @@ const ShiftForm = () => {
       } else {
         await createShifts(payload);
       }
-      history.replace("/shift");
+      history.replace("/shift",{ dateStart: minimumDate, dateEnd: maximumDate });
     } catch (error) {
       const message = getErrorMessage(error);
       setErrMsg(message);
@@ -202,7 +217,7 @@ const ShiftForm = () => {
               variant="contained"
               disabled={submitLoading}
               onClick={() => {
-                history.replace("/shift",{ dateStart: minimumDate, dateEnd: maximumDate})
+                history.replace("/shift", { dateStart: minimumDate, dateEnd: maximumDate })
               }}
             >
               Back

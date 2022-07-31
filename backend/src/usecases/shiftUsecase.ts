@@ -14,6 +14,10 @@ export const findBetweenDates = async (payload: IPublishShift): Promise<Shift[]>
         payload.dateStart,
         payload.dateEnd
       ),
+    },
+    order: {
+      date: 'ASC',
+      startTime: 'ASC'
     }
   });
 };
@@ -47,3 +51,8 @@ export const updateById = async (
 export const deleteById = async (id: string | string[]) => {
   return shiftRepository.deleteById(id);
 };
+
+export const deleteByDate = async (payload: IPublishShift) => {
+  return shiftRepository.deleteByDate(payload);
+};
+

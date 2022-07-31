@@ -62,3 +62,15 @@ export const deleteById = async (
   const repository = getRepository(Shift);
   return await repository.delete(id);
 };
+
+export const deleteByDate = async (
+  payload: any
+): Promise<DeleteResult> => {
+  logger.info("Delete by Date");
+  const repository = getRepository(Shift);
+  return await repository
+    .createQueryBuilder()
+    .delete()
+    .where("date BETWEEN :start AND :end", { start: payload?.dateStart, end: payload?.dateEnd})
+    .execute()
+};

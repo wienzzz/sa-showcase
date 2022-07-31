@@ -35,3 +35,7 @@ export const publish = async (payload: IPublishShift): Promise<Week> => {
 export const unpublish = async (id: string | string[]) => {
   return weekRepository.deleteById(id);
 };
+
+export const copy = async (payload: IPublishShift): Promise<any> => {
+  return weekRepository.copyWeek(payload.dateStart, payload.dateEnd);
+};

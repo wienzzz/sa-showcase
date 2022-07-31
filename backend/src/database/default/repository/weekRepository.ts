@@ -4,6 +4,7 @@ import {
     FindOneOptions,
     FindConditions,
     DeleteResult,
+    getManager
   } from "typeorm";
   import moduleLogger from "../../../shared/functions/logger";
   import Week from "../entity/week";
@@ -63,3 +64,13 @@ import {
     return await repository.delete(id);
   };
   
+  export const copyWeek = async (start: any, end: any): Promise<Week[]> => {
+    logger.info("Copy Week");
+    const entityManager = getManager();
+    return entityManager.query(`WITH rows AS (insert into shift(name,date,"startTime","endTime")
+    select name, date + interval '7 day', "startTime", "endTime" FROM
+    shift 
+    where
+    date between $1 and $2 AND is_valid_shift(date,"startTime","endTime")
+    ON CONFLICT DO NOTHING RETURNING name,date) SELECT * FROM rows`,[start, end])
+  };

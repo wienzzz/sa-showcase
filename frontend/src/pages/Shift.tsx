@@ -4,18 +4,20 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { getErrorMessage } from "../helper/error/index";
-import { deleteShiftById, getPublishedShift, getShiftsByDate, publishShift } from "../helper/api/shift";
+import { deleteShiftById, getPublishedShift, getShiftsByDate, publishShift, copyShift,deleteShiftWeek } from "../helper/api/shift";
 import DataTable from "react-data-table-component";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 import EditIcon from "@material-ui/icons/Edit";
 import { Typography } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Alert from "@material-ui/lab/Alert";
 import { format } from 'date-fns';
 import MyWeekPicker from "../components/MyWeekPicker";
+import { getWeekRange } from "../helper/api/function";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,7 +30,26 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'white',
     color: theme.color.turquoise
   },
-
+  copyBtn: {
+    backgroundColor: theme.color.phoenix,
+    color: "white",
+    marginLeft: "auto",
+  },
+  addBtn: {
+    backgroundColor: theme.color.red,
+    color: "white",
+    marginLeft: "auto",
+  },
+  clearBtn: {
+    backgroundColor: theme.color.azure,
+    color: "white",
+    marginLeft: "auto",
+  },
+  publishBtn: {
+    backgroundColor: theme.color.turqouise,
+    color: "white",
+    marginLeft: "auto",
+  }
 }));
 
 const SuccessTextTypography = withStyles((theme) => ({
@@ -43,13 +64,22 @@ interface ActionButtonProps {
   shouldDisable: boolean;
   onDelete: () => void;
   onEdit: (_id: string) => void;
+  onCopy: () => void;
 }
+
+interface dateState {
+  dateStart: Date;
+  dateEnd: Date;
+  params?: any
+}
+
 
 const ActionButton: FunctionComponent<ActionButtonProps> = ({
   id,
   shouldDisable,
   onDelete,
   onEdit,
+  onCopy
 }) => {
   return (
     <div>
@@ -65,6 +95,9 @@ const ActionButton: FunctionComponent<ActionButtonProps> = ({
       <IconButton size="small" aria-label="delete" disabled={shouldDisable} onClick={() => onDelete()}>
         <DeleteIcon fontSize="small" />
       </IconButton>
+      <IconButton size="small" aria-label="delete" disabled={shouldDisable} onClick={() => onCopy()}>
+        <FileCopyIcon fontSize="small" />
+      </IconButton>
     </div>
   );
 };
@@ -72,6 +105,9 @@ const ActionButton: FunctionComponent<ActionButtonProps> = ({
 const Shift = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { state } = useLocation<dateState>();
+  console.log(state);
+
 
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,13 +116,20 @@ const Shift = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState<boolean>(false);
+  const [showCopyConfirm, setShowCopyConfirm] = useState<boolean>(false);
+  const [showClearWeekConfirm, setShowClearWeekConfirm] = useState<boolean>(false);
+
   const [publishLoading, setPublishLoading] = useState<boolean>(false);
+  const [copyLoading, setCopyLoading] = useState<boolean>(false);
+  const [clearWeekLoading, setClearWeekLoading] = useState<boolean>(false);
 
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [isPublished, setIsPublished] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  
+  const [shouldCall, setShouldCall] = useState(true);
+  const [shouldReload, setShouldReload] = useState(false);
+
   const [theLabel, setTheLabel] = useState("");
   const [publishedLabel, setPublishedLabel] = useState("");
 
@@ -100,10 +143,28 @@ const Shift = () => {
     setShowPublishConfirm(true);
   };
 
+  const onCopyWeekClick = () => {
+    setShowCopyConfirm(true);
+  };
+
+  const onClearWeekClick = () => {
+    setShowClearWeekConfirm(true);
+  };
+
   const onEditClick = (id: string) => {
     history.push(`/shift/${id}/edit`, {
       dateStart: startDate,
       dateEnd: endDate
+    })
+  };
+
+  const onCopyClick = (name: string, date: Date, startTime: Date, endTime: Date) => {
+    history.push("/shift/add", {
+      dateStart: startDate,
+      dateEnd: endDate,
+      params: {
+        name: name, date: date, startTime: startTime, endTime: endTime
+      }
     })
   };
 
@@ -116,8 +177,22 @@ const Shift = () => {
     setShowPublishConfirm(false);
   };
 
+  const onCloseCopyDialog = () => {
+    setShowCopyConfirm(false);
+  };
+
+  const onCloseClearWeekDialog = () => {
+    setShowClearWeekConfirm(false);
+  };
+
   useEffect(() => {
     const getData = async () => {
+
+      if (state && shouldCall) {
+        setStartDate(state?.dateStart);
+        setEndDate(state?.dateEnd);
+        setShouldCall(false);
+      }
       try {
         setIsLoading(true);
         setErrMsg("");
@@ -144,11 +219,13 @@ const Shift = () => {
         setErrMsg(message);
       } finally {
         setIsLoading(false);
+        setShouldReload(false);
       }
     };
 
+
     getData();
-  }, [startDate, endDate, isPublished]);
+  }, [startDate, endDate, isPublished, shouldReload]);
 
   const columns = [
     {
@@ -174,7 +251,7 @@ const Shift = () => {
     {
       name: "Actions",
       cell: (row: any) => (
-        <ActionButton id={row.id} shouldDisable={isPublished} onDelete={() => onDeleteClick(row.id)} onEdit={() => onEditClick(row.id)} />
+        <ActionButton id={row.id} shouldDisable={isPublished} onDelete={() => onDeleteClick(row.id)} onEdit={() => onEditClick(row.id)} onCopy={() => onCopyClick(row.name, row.date, row.startTime, row.endTime)} />
       ),
     },
   ];
@@ -225,25 +302,77 @@ const Shift = () => {
     }
   };
 
+  const copyWeek = async () => {
+    try {
+      setCopyLoading(true);
+      setErrMsg("");
+
+      let _payload = {
+        dateStart: startDate,
+        dateEnd: endDate
+      }
+      await copyShift(_payload);
+      setShouldReload(true);
+
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setErrMsg(message);
+    } finally {
+      setCopyLoading(false);
+      onCloseCopyDialog();
+    }
+  };
+
+  const clearWeek = async () => {
+    try {
+      setClearWeekLoading(true);
+      setErrMsg("");
+
+      let _payload = {
+        dateStart: startDate,
+        dateEnd: endDate
+      }
+      await deleteShiftWeek(_payload);
+      setShouldReload(true);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setErrMsg(message);
+    } finally {
+      setClearWeekLoading(false);
+      onCloseClearWeekDialog();
+    }
+  };
+
 
   return (
     <div>
       <Card className={classes.root}>
         <CardContent>
-          <Grid container spacing={3} justifyContent="flex-end">
-            <Grid item xs={4}>
+          <Grid container spacing={2} justifyContent="flex-end">
+            <Grid item xs={3}>
               <MyWeekPicker
                 startChange={setStartDate}
                 endChange={setEndDate}
                 weekLabel={theLabel}
                 isPublished={isPublished}
               ></MyWeekPicker>
-              </Grid>
-              <Grid item xs={4}>
+            </Grid>
+            <Grid item xs={4}>
               <SuccessTextTypography align="right">{publishedLabel}</SuccessTextTypography>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={5}>
+              <Button
+                variant="contained"
+                size="small"
+                className={classes.copyBtn}
+                color="primary"
+                aria-label="copy"
+                onClick={() => onCopyWeekClick()}>
+                Copy Week
+              </Button>
               <Button variant="contained"
+                className={classes.addBtn}
+                size="small"
                 color="primary"
                 aria-label="add"
                 disabled={isPublished}
@@ -253,9 +382,24 @@ const Shift = () => {
                 })}>
                 Add Shift
               </Button>
-            </Grid>
-            <Grid item xs={2}>
-              <Button variant="contained" color="primary" aria-label="add" disabled={isPublished} onClick={() => onPublishClick()}>
+              <Button variant="contained"
+              className={classes.clearBtn}
+                size="small"
+                color="primary"
+                aria-label="delete"
+                disabled={isPublished}
+                onClick={() => onClearWeekClick()}
+                >
+                Clear Week
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                className={classes.publishBtn}
+                color="primary"
+                aria-label="publish"
+                disabled={isPublished}
+                onClick={() => onPublishClick()}>
                 Publish Now!
               </Button>
             </Grid>
@@ -295,6 +439,24 @@ const Shift = () => {
               open={showPublishConfirm}
               onYes={publishWeek}
               loading={publishLoading}
+            />
+
+            <ConfirmDialog
+              title="Copy Weeks"
+              description={`Do you want to copy this week shift to next week? Clashed schedule won't be copied and this copy won't work if next week already published`}
+              onClose={onCloseCopyDialog}
+              open={showCopyConfirm}
+              onYes={copyWeek}
+              loading={copyLoading}
+            />
+
+            <ConfirmDialog
+              title="Clear Weeks"
+              description={`Do you want to clear this week shift to next week?`}
+              onClose={onCloseClearWeekDialog}
+              open={showClearWeekConfirm}
+              onYes={clearWeek}
+              loading={clearWeekLoading}
             />
           </Grid >
         </CardContent>

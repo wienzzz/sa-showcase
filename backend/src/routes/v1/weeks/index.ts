@@ -70,4 +70,17 @@ export default function (server: Server, basePath: string) {
     }
   });
 
+  server.route({
+    method: "POST",
+    path: basePath + "/copy",
+    handler: weekController.copy,
+    options: {
+      description: 'Copy entire week shift into next week',
+      notes: 'Copy entire week shift into next week',
+      tags: ['api', 'shift', 'weeks'],
+      validate: {
+        payload: publishShiftDto
+      },
+    }
+  });
 }

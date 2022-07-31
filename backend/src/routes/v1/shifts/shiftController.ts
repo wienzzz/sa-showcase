@@ -3,6 +3,7 @@ import * as shiftUsecase from "../../../usecases/shiftUsecase";
 import { errorHandler } from "../../../shared/functions/error";
 import {
   ICreateShift,
+  IPublishShift,
   ISuccessResponse,
   IUpdateShift,
 } from "../../../shared/interfaces";
@@ -107,6 +108,24 @@ export const deleteById = async (req: Request, h: ResponseToolkit) => {
       message: "Delete shift successful",
       results: data,
     };
+    return res;
+  } catch (error) {
+    logger.error(error.message)
+    return errorHandler(h, error);
+  }
+};
+
+export const deleteByDate = async (req: Request, h: ResponseToolkit) => {
+  logger.info("Delete shift by date");
+  try {
+    const body = req.payload as IPublishShift;
+
+    const data = await shiftUsecase.deleteByDate(body);
+    const res: ISuccessResponse = {
+      statusCode: 200,
+      message: "Delete shift successful",
+      results: data,
+    }; 
     return res;
   } catch (error) {
     logger.error(error.message)

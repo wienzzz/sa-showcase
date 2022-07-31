@@ -98,3 +98,20 @@ export const unpublish = async (req: Request, h: ResponseToolkit) => {
     return errorHandler(h, error);
   }
 };
+
+export const copy = async (req: Request, h: ResponseToolkit) => {
+  logger.info("Copy week");
+  try {
+    const body = req.payload as IPublishShift;
+    const data = await weekUsecase.copy(body);
+    const res: ISuccessResponse = {
+      statusCode: 200,
+      message: "Publish shift successful",
+      results: data,
+    };
+    return res;
+  } catch (error) {
+    logger.error(error.message)
+    return errorHandler(h, error);
+  }
+};

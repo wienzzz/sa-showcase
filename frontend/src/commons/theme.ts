@@ -1,5 +1,5 @@
 import { createTheme } from "@material-ui/core/styles";
-import { STAFFANY_NAVY, STAFFANY_RED, STAFFANY_TURQOISE } from "./colors";
+import { STAFFANY_NAVY, STAFFANY_RED, STAFFANY_TURQOISE, STAFFANY_AZURE, STAFFANY_PHOENIX } from "./colors";
 
 export const staffanyTheme = createTheme({
   palette: {
@@ -21,5 +21,7 @@ export const staffanyTheme = createTheme({
     navy: STAFFANY_NAVY,
     red: STAFFANY_RED,
     turqouise: STAFFANY_TURQOISE,
+    phoenix: STAFFANY_PHOENIX,
+    azure: STAFFANY_AZURE
   },
 });

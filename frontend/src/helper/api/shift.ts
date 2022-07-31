@@ -36,6 +36,12 @@ export const deleteShiftById = async (id: string) => {
   return data;
 };
 
+export const deleteShiftWeek = async (payload: any) => {
+  const api = getAxiosInstance()
+  const { data } = await api.post(`/shifts/week`,payload);
+  return data;
+};
+
 export const getPublishedShift = async (payload: any) => {
   const api = getAxiosInstance()
   const { data } = await api.get("/weeks/by-date?dateStart="+payload.dateStart+"&dateEnd="+payload.dateEnd);
@@ -51,5 +57,11 @@ export const publishShift = async (payload: any) => {
 export const unPublishShift = async (id: string) => {
   const api = getAxiosInstance()
   const { data } = await api.delete(`/weeks/unpublish/${id}`);
+  return data;
+};
+
+export const copyShift = async (payload: any) => {
+  const api = getAxiosInstance()
+  const { data } = await api.post(`/weeks/copy`,payload);
   return data;
 };
