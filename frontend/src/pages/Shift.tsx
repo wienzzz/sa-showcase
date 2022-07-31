@@ -4,20 +4,25 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { getErrorMessage } from "../helper/error/index";
-import { deleteShiftById, getPublishedShift, getShiftsByDate, publishShift, copyShift,deleteShiftWeek } from "../helper/api/shift";
+import { deleteShiftById, getPublishedShift, getShiftsByDate, publishShift, copyShift, deleteShiftWeek } from "../helper/api/shift";
+import Tooltip from "@material-ui/core/Tooltip";
 import DataTable from "react-data-table-component";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import EditIcon from "@material-ui/icons/Edit";
+import PublishIcon from "@material-ui/icons/Publish";
+import PostAddIcon from "@material-ui/icons/PostAdd";
+import EventAvailableIcon from "@material-ui/icons/EventAvailable";
+import EventBusyIcon from "@material-ui/icons/EventBusy";
 import { Typography } from "@material-ui/core";
 import { useHistory, useLocation } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Alert from "@material-ui/lab/Alert";
 import { format } from 'date-fns';
 import MyWeekPicker from "../components/MyWeekPicker";
-import { getWeekRange } from "../helper/api/function";
+import { CalendarToday } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,21 +88,33 @@ const ActionButton: FunctionComponent<ActionButtonProps> = ({
 }) => {
   return (
     <div>
-
-      <IconButton
-        size="small"
-        aria-label="delete"
-        disabled={shouldDisable}
-        onClick={() => onEdit(id)}
-      >
-        <EditIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="small" aria-label="delete" disabled={shouldDisable} onClick={() => onDelete()}>
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="small" aria-label="delete" disabled={shouldDisable} onClick={() => onCopy()}>
-        <FileCopyIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title="Edit Shift" arrow>
+        <IconButton
+          size="small"
+          aria-label="edit"
+          disabled={shouldDisable}
+          onClick={() => onEdit(id)}
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Delete Shift" arrow>
+        <IconButton
+          size="small"
+          aria-label="delete"
+          disabled={shouldDisable}
+          onClick={() => onDelete()}>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Copy Shift" arrow>
+        <IconButton size="small"
+          aria-label="delete"
+          disabled={shouldDisable}
+          onClick={() => onCopy()}>
+          <FileCopyIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     </div>
   );
 };
@@ -349,7 +366,7 @@ const Shift = () => {
       <Card className={classes.root}>
         <CardContent>
           <Grid container spacing={2} justifyContent="flex-end">
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <MyWeekPicker
                 startChange={setStartDate}
                 endChange={setEndDate}
@@ -360,48 +377,61 @@ const Shift = () => {
             <Grid item xs={4}>
               <SuccessTextTypography align="right">{publishedLabel}</SuccessTextTypography>
             </Grid>
-            <Grid item xs={5}>
-              <Button
-                variant="contained"
-                size="small"
-                className={classes.copyBtn}
-                color="primary"
-                aria-label="copy"
-                onClick={() => onCopyWeekClick()}>
-                Copy Week
-              </Button>
-              <Button variant="contained"
-                className={classes.addBtn}
-                size="small"
-                color="primary"
-                aria-label="add"
-                disabled={isPublished}
-                onClick={() => history.push("/shift/add", {
-                  dateStart: startDate,
-                  dateEnd: endDate
-                })}>
-                Add Shift
-              </Button>
-              <Button variant="contained"
-              className={classes.clearBtn}
-                size="small"
-                color="primary"
-                aria-label="delete"
-                disabled={isPublished}
-                onClick={() => onClearWeekClick()}
+            <Grid item xs={1}>
+              <Tooltip title="Add New Single Shift On This Week" arrow>
+                <IconButton
+                  className={classes.addBtn}
+                  size="small"
+                  color="primary"
+                  aria-label="add"
+                  disabled={isPublished}
+                  onClick={() => history.push("/shift/add", {
+                    dateStart: startDate,
+                    dateEnd: endDate
+                  })}>
+                  <PostAddIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={1}>
+              <Tooltip title="Copy Entire Week Shift To Next Week" arrow>
+                <IconButton
+                  size="small"
+                  className={classes.copyBtn}
+                  color="primary"
+                  aria-label="copy"
+                  onClick={() => onCopyWeekClick()}>
+                  <EventAvailableIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            
+            <Grid item xs={1}>
+              <Tooltip title="Clear This Week Shift" arrow>
+                <IconButton
+                  className={classes.clearBtn}
+                  size="small"
+                  color="primary"
+                  aria-label="delete"
+                  disabled={isPublished}
+                  onClick={() => onClearWeekClick()}
                 >
-                Clear Week
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                className={classes.publishBtn}
-                color="primary"
-                aria-label="publish"
-                disabled={isPublished}
-                onClick={() => onPublishClick()}>
-                Publish Now!
-              </Button>
+                  <EventBusyIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item xs={1}>
+              <Tooltip title="Publish This Week Shift" arrow>
+                <IconButton
+                  size="small"
+                  className={classes.publishBtn}
+                  color="primary"
+                  aria-label="publish"
+                  disabled={isPublished}
+                  onClick={() => onPublishClick()}>
+                  <PublishIcon />
+                </IconButton>
+              </Tooltip>
             </Grid>
           </Grid>
           <Grid container spacing={3}>
